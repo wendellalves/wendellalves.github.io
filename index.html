@@ -447,6 +447,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Atividade 4.2</p>
 </li>
 <li>
+<p>Atividade 5.1</p>
+</li>
+<li>
+<p>Atividade 5.2</p>
+</li>
+<li>
 <p>Atividade 6.1</p>
 </li>
 </ul>
@@ -454,7 +460,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_atividade_3_1">Atividade 3.1</h3>
 <div class="paragraph">
-<p>Programa que solicita do usuário as coordenadas de dois pontos P1 e P2 dentro dos limites da imagem. Com isso, o retângulo limitado pelos pontos P1 e P2 mostrará o negativo da imagem na região correspondente.</p>
+<p>Programa que solicita do usuário as coordenadas de dois pontos P1 e P2 dentro dos limites da imagem. Com isso, o retângulo limitado pelos pontos P1 e P2 mostrará o negativo da imagem na região correspondente. Esse negativo é feito pegando a imagem em escala de cinza e atribuindo a cada pixel o valor de 255, maior valor em escala de cinza, menos o valor atual do pixel.</p>
 </div>
 <div class="paragraph">
 <p>O código fonte <a href="NegativoRegiao.cpp" class="bare">NegativoRegiao.cpp</a> está mostrado abaixo:</p>
@@ -519,7 +525,8 @@ int main(int, char**){
 <div class="sect2">
 <h3 id="_atividade_3_2">Atividade 3.2</h3>
 <div class="paragraph">
-<p>Programa divide a image em quatro partes e misturar como se fosse um quebra-cabeças.</p>
+<p>Programa divide a image em quatro partes e misturar como se fosse um quebra-cabeças.
+Para isto ser feito, foi necessário criar uma matriz auxiliar e percorrer as duas matrizes de imagem quatro vezes, atribuindo o valor dos pixels de uma na posição trocada na outra martiz. O primeiro conjunto de dois "for" que percorrem as matrizes percorre a primeira matriz da linha e coluna zero até a metade do número de linhas e metade do número de colunas, colocando esses pixels nas linhas e colunas da segunda matriz que são percorridas da metade do número de linhas e colunas até as últimas linhas e colunas. Nos outros "for" a idéia é a mesma, mas apenas alterando os limites para percorrer nas respectivas matrizes.</p>
 </div>
 <div class="paragraph">
 <p>O código fonte <a href="trocaregioes.cpp" class="bare">trocaregioes.cpp</a>  está mostrado abaixo:</p>
@@ -588,7 +595,8 @@ int main(int, char**){
 <div class="sect2">
 <h3 id="_atividade_4_1">Atividade 4.1</h3>
 <div class="paragraph">
-<p>Programa para realizar a contagem dos objetos na cena se caso existam mais de 255 objetos na cena.</p>
+<p>Programa para realizar a contagem dos objetos na cena se caso existam mais de 255 objetos na cena.
+Para essa contagem ser efetuada, precisamos sair enumerando todos os objetos de cor diferente da do fundo da imagem com cores acrescidas de um em um, contagem feita utilizando a função floodFill. Porém ao chegar no valor de 254 devemos pular a cor para o valor de 256 para evitarmos misturar os objetos com tom de cinza 255, após o término da contagem, só é necessário subtrair um caso o número de objetos seja maior que 254.</p>
 </div>
 <div class="paragraph">
 <p>O código fonte <a href="contarmaisde255.cpp" class="bare">contarmaisde255.cpp</a>  está mostrado abaixo:</p>
@@ -666,7 +674,8 @@ int main(int argc, char** argv){
 <div class="sect2">
 <h3 id="_atividade_4_2">Atividade 4.2</h3>
 <div class="paragraph">
-<p>Algoritmo para contar as bolhas que possuem buracos e as que não possuem buracos, eliminando as que tocam as bordas, pois a princípio não podemos dizer se estas possuem ou não buracos.</p>
+<p>Algoritmo para contar as bolhas que possuem buracos e as que não possuem buracos, eliminando as que tocam as bordas, pois a princípio não podemos dizer se estas possuem ou não buracos.
+Para fazer a eliminação das bolhas que tocam as bordas, precisamos apenas aplicar um floodFill com o valor do fundo da imagem em todos os pontos da primeira e última linhas e coluna. Para contar as bolhas com buraco, foi preciso primeiro contar a quantidade de bolhas. Depois disso é necessário percorrer a imagem fazendo um decréscimo nas imagens que já forem sendo contadas com buraco, e no final só é necessário subtrair o número de com buraco do número de bolhas total.</p>
 </div>
 <div class="paragraph">
 <p>O código fonte <a href="contarburacos.cpp" class="bare">contarburacos.cpp</a>  está mostrado abaixo:</p>
@@ -796,6 +805,125 @@ int main(int argc, char** argv){
 </div>
 </div>
 <div class="sect2">
+<h3 id="_atividade_5_1">Atividade 5.1</h3>
+<div class="paragraph">
+<p>Algoritmo que tem como objetivo equalizar a imagem capturada. Primeira coisa que foi feita foi converter a imagem capturada para escala de cinza para ficar mais fácil de ser manipulada e depois disso foi utilizado o filtro equalizeHist para equalizar a imagem para depois ser exibida lado a lado da imagem original.</p>
+</div>
+<div class="paragraph">
+<p>O código fonte <a href="equalize.cpp" class="bare">equalize.cpp</a>  está mostrado abaixo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>#include &lt;iostream&gt;
+#include &lt;opencv2/opencv.hpp&gt;
+
+using namespace cv;
+using namespace std;
+
+int main(int argc, char** argv){
+  Mat image, saida;
+  VideoCapture cap;
+  vector&lt;Mat&gt; planes;
+
+  cap.open(0);
+
+  if(!cap.isOpened()){
+    cout &lt;&lt; "cameras indisponiveis";
+    return -1;
+  }
+
+  while(1){
+    cap &gt;&gt; image;
+    split (image, planes);
+
+    cvtColor(image, image, CV_BGR2GRAY);
+
+    equalizeHist(image, saida);
+
+    imshow("image", image);
+    imshow("equalizada", saida);
+    if(waitKey(30) &gt;= 0) break;
+  }
+  imwrite("entradaEqualize.png", image);
+  imwrite("saidaEqualize.png", saida);
+
+  return 0;
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_atividade_5_2">Atividade 5.2</h3>
+<div class="paragraph">
+<p>Algoritmo que tem como objetivo implementar um filtro que seja capaz de detectar movimento na imagem utilizando um método de comparação das diferenças entre as imagens.
+Nesse algoritmo é feito o histograma da imagem, e dentro do while é feita mais uma captura de imagem e tirado o histograma da mesma, para obtermos duas imagens de tempos diferentes e compararmos. Dentro desse while, é feita a soma da diferença absoluta dos histogramas para ter a quantidade de mudança entres as imagens.</p>
+</div>
+<div class="paragraph">
+<p>O código fonte <a href="motiondetector.cpp" class="bare">motiondetector.cpp</a>  está mostrado abaixo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>#include &lt;iostream&gt;
+#include &lt;opencv2/opencv.hpp&gt;
+
+using namespace cv;
+using namespace std;
+
+int main(int argc, char** argv){
+  Mat image;
+  //int width, height;
+  VideoCapture cap;
+  vector&lt;Mat&gt; planes;
+  Mat hist, histAux;
+  int nbins = 64;
+  float range[] = {0, 256};
+  const float *histrange = { range };
+  bool uniform = true;
+  bool acummulate = false;
+
+  cap.open(0);
+
+  if(!cap.isOpened()){
+    cout &lt;&lt; "cameras indisponiveis";
+    return -1;
+  }
+
+  cap &gt;&gt; image;
+  split (image, planes);
+
+  calcHist(&amp;planes[0], 1, 0, Mat(), hist, 1,
+           &amp;nbins, &amp;histrange,
+           uniform, acummulate);
+
+  while(1){
+    cap &gt;&gt; image;
+    split (image, planes);
+
+    calcHist(&amp;planes[0], 1, 0, Mat(), histAux, 1,
+             &amp;nbins, &amp;histrange,
+             uniform, acummulate);
+
+    float somador = 0;
+
+    for(int i=0; i&lt;nbins; i++){
+        somador = somador + abs(cvRound(hist.at&lt;float&gt;(i)) - cvRound(histAux.at&lt;float&gt;(i)));
+    }
+// Esse valor vai de acordo com a qualidade da sua camera, quanto mais ruido maior deve ser
+    if(somador &gt; (20000)){
+      cout &lt;&lt; "Alerta de Intruso!!!" &lt;&lt; endl;
+    }
+
+    hist = histAux.clone();
+
+    imshow("image", image);
+    if(waitKey(30) &gt;= 0) break;
+  }
+  return 0;
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_atividade_6_1">Atividade 6.1</h3>
 <div class="paragraph">
 <p>Algoritmo que possui um menu com várias opções de filtro:
@@ -809,7 +937,8 @@ int main(int argc, char** argv){
  esc - sair.</p>
 </div>
 <div class="paragraph">
-<p>Algoritmo cuja a opção 'k' passa um filtro Gaussiano e depois um filtro Laplaciano.</p>
+<p>Algoritmo cuja a opção 'k' passa um filtro Gaussiano e depois um filtro Laplaciano.
+Para esse procedimento de passar dois filtros ser efetuado, foi necessário a criação de uma flag para quando opção "k" for escolhida, seja aplicada o filtro da gaussiana e posteriormente o código entre em um condicional if e assim o resultado da filtragem da gaussiana passe pelo filtro do laplaciano, obtendo desta forma o filtro do laplaciano do gaussiano.</p>
 </div>
 <div class="paragraph">
 <p>O código fonte <a href="laplalgauss.cpp" class="bare">laplalgauss.cpp</a>  está mostrado abaixo:</p>
@@ -846,31 +975,28 @@ void menu(){
 int main(int argvc, char** argv){
   VideoCapture video;
   float media[] = {1,1,1,
-		   1,1,1,
-		   1,1,1};
+				            1,1,1,
+				            1,1,1};
   float gauss[] = {1,2,1,
-		   2,4,2,
-		   1,2,1};
+				            2,4,2,
+				            1,2,1};
   float horizontal[]={-1,0,1,
-		      -2,0,2,
-		      -1,0,1};
+					           -2,0,2,
+					           -1,0,1};
   float vertical[]={-1,-2,-1,
-		     0,0,0,
-		     1,2,1};
+					           0,0,0,
+					           1,2,1};
   float laplacian[]={0,-1,0,
-		     -1,4,-1,
-		      0,-1,0};
-  //Resultado da multiplicação das matrizes de laplace e gauss
-  float laplgauss[]={-2,-4,-2,
-                      6,12,6,
-                      -2,-4,-2};
+					           -1,4,-1,
+					           0,-1,0};
 
   Mat cap, frame, frame32f, frameFiltered;
   Mat mask(3,3,CV_32F), mask1;
   Mat result, result1;
-  double width, height, min, max;
+  double width, height;
   int absolut;
   char key;
+  bool secondfilter = false;
 
   video.open(0);
   if(!video.isOpened())
@@ -900,6 +1026,17 @@ int main(int argvc, char** argv){
     }
     frameFiltered.convertTo(result, CV_8U);
     imshow("filtroespacial", result);
+
+    if(secondfilter){
+      mask = Mat(3, 3, CV_32F, laplacian);
+      filter2D(frameFiltered, frameFiltered, frame32f.depth(), mask, Point(1,1), 0);
+      if(absolut){
+        frameFiltered=abs(frameFiltered);
+      }
+      frameFiltered.convertTo(result, CV_8U);
+      imshow("filtroespacial", result);
+    }
+
     key = (char) waitKey(10);
     if( key == 27 ) break; // esc pressed!
     switch(key){
@@ -938,7 +1075,8 @@ int main(int argvc, char** argv){
       break;
     case 'k':
     menu();
-      mask = Mat(3, 3, CV_32F, laplgauss);
+      secondfilter = !secondfilter;
+      mask = Mat(3, 3, CV_32F, gauss);
       scaleAdd(mask, 1/16.0, Mat::zeros(3,3,CV_32F), mask1);
       mask = mask1;
       printmask(mask);
@@ -972,7 +1110,7 @@ int main(int argvc, char** argv){
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-09-09 07:14:53 BRT
+Last updated 2016-09-17 23:52:07 BRT
 </div>
 </div>
 </body>

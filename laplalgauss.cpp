@@ -28,31 +28,28 @@ void menu(){
 int main(int argvc, char** argv){
   VideoCapture video;
   float media[] = {1,1,1,
-		   1,1,1,
-		   1,1,1};
+				            1,1,1,
+				            1,1,1};
   float gauss[] = {1,2,1,
-		   2,4,2,
-		   1,2,1};
+				            2,4,2,
+				            1,2,1};
   float horizontal[]={-1,0,1,
-		      -2,0,2,
-		      -1,0,1};
+					           -2,0,2,
+					           -1,0,1};
   float vertical[]={-1,-2,-1,
-		     0,0,0,
-		     1,2,1};
+					           0,0,0,
+					           1,2,1};
   float laplacian[]={0,-1,0,
-		     -1,4,-1,
-		      0,-1,0};
-  //Resultado da multiplicação das matrizes de laplace e gauss
-  float laplgauss[]={-2,-4,-2,
-                      6,12,6,
-                      -2,-4,-2};
+					           -1,4,-1,
+					           0,-1,0};
 
   Mat cap, frame, frame32f, frameFiltered;
   Mat mask(3,3,CV_32F), mask1;
   Mat result, result1;
-  double width, height, min, max;
+  double width, height;
   int absolut;
   char key;
+  bool secondfilter = false;
   
   video.open(0); 
   if(!video.isOpened()) 
@@ -82,6 +79,17 @@ int main(int argvc, char** argv){
     }
     frameFiltered.convertTo(result, CV_8U);
     imshow("filtroespacial", result);
+
+    if(secondfilter){
+      mask = Mat(3, 3, CV_32F, laplacian);
+      filter2D(frameFiltered, frameFiltered, frame32f.depth(), mask, Point(1,1), 0);
+      if(absolut){
+        frameFiltered=abs(frameFiltered);
+      }
+      frameFiltered.convertTo(result, CV_8U);
+      imshow("filtroespacial", result);
+    }
+
     key = (char) waitKey(10);
     if( key == 27 ) break; // esc pressed!
     switch(key){
@@ -120,7 +128,8 @@ int main(int argvc, char** argv){
       break;
     case 'k':
     menu();
-      mask = Mat(3, 3, CV_32F, laplgauss);
+      secondfilter = !secondfilter;
+      mask = Mat(3, 3, CV_32F, gauss);
       scaleAdd(mask, 1/16.0, Mat::zeros(3,3,CV_32F), mask1);
       mask = mask1;
       printmask(mask);
